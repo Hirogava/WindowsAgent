@@ -3,7 +3,7 @@
 ## Run
 
 ```powershell
-python -m uvicorn --app-dir "WindowsAgent\tts-service" src.app.main:app --host 127.0.0.1 --port 8003
+python -m uvicorn --app-dir "WindowsAgent\tts-service" src.app.main:app --host 127.0.0.1 --port 8002
 ```
 
 ## Health check

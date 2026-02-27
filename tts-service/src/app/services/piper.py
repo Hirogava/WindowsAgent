@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-
+# нужно файл вообще не сохранять, а сразу в память
 def text_to_speech(text: str) -> bytes:
     input_file = Path(__file__).parent / "input.txt"
     output_file = Path(__file__).parent / "output.wav"
@@ -22,4 +22,8 @@ def text_to_speech(text: str) -> bytes:
         subprocess.run(base_command, check=True)
     
     with open(output_file, "rb") as f:
-        return f.read()
+        file_data = f.read()
+
+    output_file.unlink()
+    input_file.unlink()
+    return file_data
