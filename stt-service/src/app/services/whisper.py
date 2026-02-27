@@ -3,8 +3,8 @@ from faster_whisper import WhisperModel
 
 model = WhisperModel(
     "medium",
-    device="cuda",
-    compute_type="float16"
+    device="cuda", # либо cpu
+    compute_type="float16" # int8
 )
 
 def transcribe_audio(data: bytes) -> str:

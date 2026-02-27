@@ -27,7 +27,7 @@ func GetMicrophones() ([]string, error) {
 	lines := strings.Split(output, "\n")
 
 	for _, line := range lines {
-		if strings.Contains(line, "dshow") && strings.Contains(line, "audio") || strings.Contains(line, "video") {
+		if strings.Contains(line, "audio") || strings.Contains(line, "video") {
 			start := strings.Index(line, "\"")
 			end := strings.LastIndex(line, "\"")
 			if start != -1 && end != -1 && end > start {
