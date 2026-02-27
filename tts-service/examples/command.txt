@@ -1,0 +1,1 @@
+piper --model .\ru_RU-ruslan-medium.onnx --input_file .\text.txt --output_file .\test_input_file.wav
