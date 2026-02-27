@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/Hirogava/WindowsAgent/core/internal/service"
+	"github.com/Hirogava/WindowsAgent/core/internal/llm"
 )
 
 func main() {
@@ -40,9 +41,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	response, err := llm.SendTextToLLM(resp.Transcription, "")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Ответ от LLM:", response)
+
 	// вот тут будет функция для понимания контекста команды и отправки текста в TTS
 
-	err = service.SendTextToAudio(resp.Transcription, "http://127.0.0.1:8002/api/text-to-speech")
+	err = service.SendTextToAudio(response, "http://127.0.0.1:8002/api/text-to-speech")
 	if err != nil {
 		log.Fatal(err)
 	}
