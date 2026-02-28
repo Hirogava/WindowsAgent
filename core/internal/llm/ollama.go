@@ -10,7 +10,7 @@ import (
 	ollama "github.com/liliang-cn/ollama-go"
 )
 
-func SendTextToLLM(text string, llmURL string) (string, error) {
+func SendTextToLLM(text string, llmURL string, prompt models.Prompts) (string, error) {
 	ctx := context.Background()
 
 	model, err := config.LoadOllamaConfigFromFile()
@@ -21,7 +21,7 @@ func SendTextToLLM(text string, llmURL string) (string, error) {
 	messages := []ollama.Message{
 		{
 			Role:    "system",
-			Content: models.PromptForTaskExecution,
+			Content: string(prompt),
 		},
 		{
 			Role:    "user",
