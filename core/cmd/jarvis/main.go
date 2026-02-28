@@ -46,7 +46,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Ответ от LLM:", responseVoice)
 
 	err = service.SendTextToAudio(responseVoice, "http://127.0.0.1:8002/api/text-to-speech")
 	if err != nil {
@@ -61,5 +60,6 @@ func main() {
 	respJson = service.JsonCleaner(respJson)
 
 	fmt.Println("Ответ от LLM (команда для выполнения):", respJson)
+	fmt.Println("Ответ от LLM для озвучки действий: ", responseVoice)
 	fmt.Println("Транскрибированный текст:", resp.Transcription)
 }
