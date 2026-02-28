@@ -1,15 +1,21 @@
 package llm
 
 import (
+	"context"
 	"fmt"
 	"log"
-	"context"
 
+	"github.com/Hirogava/WindowsAgent/core/internal/config"
 	ollama "github.com/liliang-cn/ollama-go"
 )
 
 func SendTextToLLM(text string, llmURL string) (string, error) {
 	ctx := context.Background()
+
+	model, err := config.LoadOllamaConfigFromFile()
+	if err != nil {
+		return "", err
+	}
 
 	messages := []ollama.Message{
 		{
@@ -26,7 +32,7 @@ func SendTextToLLM(text string, llmURL string) (string, error) {
 	
 	response, err := ollama.Chat(
         ctx,
-        "gemma3:4b",
+        model,
         messages,
         func(r *ollama.ChatRequest) {
             r.Options = &options

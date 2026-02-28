@@ -1,17 +1,19 @@
 import subprocess
 from pathlib import Path
+from ..services.config import LoadConfig
 
-# нужно файл вообще не сохранять, а сразу в память
 def text_to_speech(text: str) -> bytes:
     input_file = Path(__file__).parent / "input.txt"
     output_file = Path(__file__).parent / "output.wav"
 
     with open(input_file, "w", encoding="utf-8") as f:
         f.write(text)
+    
+    model = LoadConfig()
 
     base_command = [
         "piper",
-        "--model", str(Path(__file__).parent / "ru_RU-ruslan-medium.onnx"),
+        "--model", str(Path(__file__).parent / model),
         "--input_file", str(input_file),
         "--output_file", str(output_file),
     ]

@@ -1,10 +1,13 @@
 from io import BytesIO
 from faster_whisper import WhisperModel
+from ..services.config import LoadConfig
+
+modelData = LoadConfig()
 
 model = WhisperModel(
-    "medium",
-    device="cuda", # либо cpu
-    compute_type="float16" # int8
+    modelData["model"],
+    device=modelData["device"], # либо cpu
+    compute_type=modelData["compute_type"] # int8
 )
 
 def transcribe_audio(data: bytes) -> str:
