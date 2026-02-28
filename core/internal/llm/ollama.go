@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/Hirogava/WindowsAgent/core/internal/config"
+	"github.com/Hirogava/WindowsAgent/core/internal/models"
 	ollama "github.com/liliang-cn/ollama-go"
 )
 
@@ -18,6 +19,10 @@ func SendTextToLLM(text string, llmURL string) (string, error) {
 	}
 
 	messages := []ollama.Message{
+		{
+			Role:    "system",
+			Content: models.PromptForTaskExecution,
+		},
 		{
 			Role:    "user",
 			Content: text,
