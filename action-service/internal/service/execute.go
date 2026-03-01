@@ -12,14 +12,23 @@ func (ar *ActionRegistry) OpenUrlInBrowser(querys []string) error {
 	standardGoogleSearch := "https://www.google.com/search?q="
 
 	if len(querys) == 0 {
+		fmt.Println("нет аргументов")
 		return fmt.Errorf("нет аргументов для открытия в браузере")
 	} else if len(querys) == 1 && strings.HasPrefix(querys[0], "http") {
+		fmt.Println("по стандарту ", querys[0])
 		query = querys[0]
+	}else if strings.HasPrefix(querys[0], "http"){
+		query = strings.Join(querys, "")
+		query = strings.ReplaceAll(query, " ", "+")
+		fmt.Println("составной ", query)
 	} else {
 		query = standardGoogleSearch + strings.Join(querys, "+")
+		query = strings.ReplaceAll(query, " ", "+")
+		fmt.Println("составной ", query)
 	}
 
 	cmd := exec.Command("cmd", "/C", "start", query)
+	fmt.Println("комманда", cmd)
 	return cmd.Run()
 }
 
