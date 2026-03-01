@@ -1,32 +1,72 @@
-# STT Service
+# stt-service
 
-## Run
+Python/FastAPI сервис распознавания речи на базе `faster-whisper`.
+
+## Запуск
 
 ```powershell
-python -m uvicorn --app-dir "WindowsAgent\stt-service" src.app.main:app --host 127.0.0.1 --port 8001
+cd .\stt-service
+pip install -r requirements.txt
+python -m uvicorn src.app.main:app --host 127.0.0.1 --port 8001
 ```
 
-## Health check
+## API
+
+### `GET /api/health`
+
+```json
+{
+	"status": "ok"
+}
+```
+
+### `POST /api/transcribe`
+
+- `multipart/form-data`
+- поле: `file`
+- поддерживаемые content type:
+	- `audio/mpeg`
+	- `audio/wav`
+	- `audio/x-wav`
+	- `audio/mp3`
+	- `application/octet-stream`
+
+Ответ:
+
+```json
+{
+	"transcription": "..."
+}
+```
+
+## Проверка
 
 ```powershell
 Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8001/api/health
 ```
 
-## Transcribe audio (curl)
-
 ```powershell
-curl.exe -X POST "http://127.0.0.1:8001/api/transcribe" -F "file=@c:WindowsAgent\stt-service\examples\73245.mp3;type=audio/mpeg"
+Invoke-RestMethod `
+	-Uri "http://127.0.0.1:8001/api/transcribe" `
+	-Method Post `
+	-Form @{ file = Get-Item ".\examples\73245.mp3" }
 ```
 
-## Transcribe audio (PowerShell)
+## Конфиг
 
-```powershell
-Set-Location "WindowsAgent\stt-service"
-Invoke-RestMethod -Uri "http://127.0.0.1:8001/api/transcribe" -Method Post -Form @{ file = Get-Item "examples\73245.mp3" }
+Используется файл `config/stt-config.json`:
+
+```json
+{
+	"model": "medium",
+	"device": "cpu",
+	"compute_type": "int8"
+}
 ```
 
-## Notes
+Сервис ищет конфиг, поднимаясь от `src/app/services/config.py` вверх по директориям.
 
-- Endpoint: `POST /api/transcribe`
-- Form field name: `file`
-- Supported upload content types: `audio/mpeg`, `audio/wav`, `audio/x-wav`, `audio/mp3`, `application/octet-stream`
+## Заметки
+
+- Язык в `transcribe()` сейчас зафиксирован как `ru`.
+- Включен `vad_filter=True`.

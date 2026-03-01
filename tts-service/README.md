@@ -1,33 +1,61 @@
-# TTS Service
+# tts-service
 
-## Run
+Python/FastAPI сервис синтеза речи на базе `piper`.
+
+## Запуск
 
 ```powershell
-python -m uvicorn --app-dir "WindowsAgent\tts-service" src.app.main:app --host 127.0.0.1 --port 8002
+cd .\tts-service
+pip install -r requirements.txt
+python -m uvicorn src.app.main:app --host 127.0.0.1 --port 8002
 ```
 
-## Health check
+## API
+
+### `GET /api/health`
+
+```json
+{
+  "status": "ok"
+}
+```
+
+### `GET /api/text-to-speech?text=...`
+
+- обязательный query-параметр: `text`
+- ответ: бинарный `audio/wav`
+
+## Проверка
 
 ```powershell
 Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:8002/api/health"
 ```
 
-## Text-to-speech (save WAV)
-
 ```powershell
-$out = "WindowsAgent\tts-service\examples\tts_http_test.wav"
+$out = ".\examples\tts_http_test.wav"
 Invoke-WebRequest -UseBasicParsing "http://127.0.0.1:8002/api/text-to-speech?text=Привет%20мир" -OutFile $out
 (Get-Item $out).Length
 ```
 
-## Endpoint
+## Конфиг
 
-- `GET /api/text-to-speech?text=<urlencoded_text>`
-- Response: `audio/wav`
+Используется `config/tts-config.json`:
 
-## Notes
+```json
+{
+  "model": "ru_RU-ruslan-medium.onnx"
+}
+```
 
-- Service tries `piper` with `--cuda`; if unavailable, falls back to CPU automatically.
-- Voice model files are expected in `src/app/services`:
-  - `ru_RU-ruslan-medium.onnx`
-  - `ru_RU-ruslan-medium.onnx.json`
+Значение `model` резолвится относительно `src/app/services/`.
+
+## Внутренняя логика
+
+- Временные файлы `input.txt` и `output.wav` создаются в `src/app/services/`.
+- Сначала запускается `piper ... --cuda`, при ошибке выполняется fallback на CPU (без `--cuda`).
+- После чтения результата временные файлы удаляются.
+
+## Важно
+
+- `piper` должен быть доступен в `PATH`.
+- Файлы модели `.onnx` и `.onnx.json` должны быть рядом в `src/app/services/`.
