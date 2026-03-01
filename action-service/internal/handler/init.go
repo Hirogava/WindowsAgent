@@ -33,7 +33,7 @@ func CommandExecute(ctx *gin.Context, ar service.ActionRegistry) {
 		return
 	}
 
-	if err := ar.OpenUrlInBrowser(req.Args[0]); err != nil {
+	if err := ar.OpenUrlInBrowser(req.Args); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
