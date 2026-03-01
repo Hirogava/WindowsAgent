@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"sync"
 
 	"github.com/Hirogava/WindowsAgent/core/internal/llm"
 	"github.com/Hirogava/WindowsAgent/core/internal/models"
@@ -47,10 +48,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = service.SendTextToAudio(responseVoice, "http://127.0.0.1:8002/api/text-to-speech")
-	if err != nil {
-		log.Fatal(err)
-	}
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func () {
+		err = service.SendTextToAudio(responseVoice, "http://127.0.0.1:8002/api/text-to-speech", "http://127.0.0.1:8003/api/play-audio")
+		if err != nil {
+			log.Fatal(err)
+		}
+		wg.Done()
+	}()
 
 	respJson, err := llm.SendTextToLLM(resp.Transcription, "", models.PromptForTaskExecution)
 	if err != nil {
@@ -64,4 +70,5 @@ func main() {
 	fmt.Println("Ответ от LLM (команда для выполнения):", respJson)
 	fmt.Println("Ответ от LLM для озвучки действий: ", responseVoice)
 	fmt.Println("Транскрибированный текст:", resp.Transcription)
+	wg.Wait()
 }

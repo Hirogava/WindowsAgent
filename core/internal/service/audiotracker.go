@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
+	"os"
 
 	// "os"
 	"os/exec"
@@ -125,7 +126,7 @@ func RecordAndSend(device string, duration int, sttURL string) (*models.STTRespo
 
 	var out bytes.Buffer
 	cmd.Stdout = &out
-	cmd.Stderr = nil
+	cmd.Stderr = os.Stderr
 
 	fmt.Println("🎙 Запись...")
 

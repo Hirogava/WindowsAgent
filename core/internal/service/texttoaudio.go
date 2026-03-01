@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
-	"os"
 )
 
-func SendTextToAudio(text string, ttsURL string) error {
+func SendTextToAudio(text string, ttsURL, actionServiceURL string) error {
 	body := &bytes.Buffer{}
 
 	req, err := http.NewRequest("GET", ttsURL, body)
@@ -34,20 +34,30 @@ func SendTextToAudio(text string, ttsURL string) error {
 		return fmt.Errorf("TTS API error: %s", resp.Status)
 	}
 
-	file, err := os.Create("output.wav")
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, err := writer.CreateFormFile("audio", "output.wav")
 	if err != nil {
 		return err
 	}
 
-	_, err = io.Copy(file, resp.Body)
+	_, err = io.Copy(part, resp.Body)
 	if err != nil {
 		return err
 	}
 
-	err = file.Close()
+	writer.Close()
+
+	req, err = http.NewRequest("POST", actionServiceURL, &buf)
 	if err != nil {
 		return err
 	}
+
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+
+	client = &http.Client{}
+	_, err = client.Do(req)
 
 	return nil
 }
