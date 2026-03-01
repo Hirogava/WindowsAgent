@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 func (ar *ActionRegistry) OpenUrlInBrowser(querys []string) error {
@@ -29,5 +30,21 @@ func (ar *ActionRegistry) PlayWav(path string) error {
 		fmt.Sprintf("(New-Object Media.SoundPlayer '%s').PlaySync();", path),
 	)
 
+	return cmd.Run()
+}
+
+func (ar *ActionRegistry) ShutdownPC(args []string) error {
+	time.Sleep(time.Second * 20)
+
+	cmdArgs := append([]string{"/C", "shutdown"}, args...)
+	cmd := exec.Command("cmd", cmdArgs...)
+	return cmd.Run()
+}
+
+func (ar *ActionRegistry) RebootPC(args []string) error {
+	time.Sleep(time.Second * 20)
+
+	cmdArgs := append([]string{"/C", "shutdown"}, args...)
+	cmd := exec.Command("cmd", cmdArgs...)
 	return cmd.Run()
 }

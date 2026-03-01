@@ -28,19 +28,39 @@ func CommandExecute(ctx *gin.Context, ar service.ActionRegistry) {
 		return
 	}
 
-	if req.Command != "browser" && req.Command != "search" {
+	switch req.Command {
+	case "browser", "search":
+		if err := ar.OpenUrlInBrowser(req.Args); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"status": "success",
+		})
+	case "shutdown":
+		if err := ar.ShutdownPC(req.Args); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"status": "success",
+		})
+
+	case "reboot":
+		if err := ar.RebootPC(req.Args); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"status": "success",
+		})
+	default:
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "пока неизвестная команда"})
 		return
 	}
-
-	if err := ar.OpenUrlInBrowser(req.Args); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"status": "success",
-	})
 }
 
 func GetAudioAndPlay(ctx *gin.Context, ar service.ActionRegistry) {
