@@ -13,5 +13,13 @@ type Action interface {
 }
 
 type ActionRegistry struct {
-	Prompts []models.PromptResponse
+	Prompt models.PromptResponse
+}
+
+func NewActionRegistry() ActionRegistry {
+	return ActionRegistry{}
+}
+
+func (ar *ActionRegistry) Name() string {
+	return ar.Prompt.Command
 }

@@ -59,6 +59,8 @@ func main() {
 
 	respJson = service.JsonCleaner(respJson)
 
+	err = service.SendToActionService(respJson, "http://127.0.0.1:8003/api/command-execute")
+
 	fmt.Println("Ответ от LLM (команда для выполнения):", respJson)
 	fmt.Println("Ответ от LLM для озвучки действий: ", responseVoice)
 	fmt.Println("Транскрибированный текст:", resp.Transcription)
