@@ -5,6 +5,8 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+
+	hook "github.com/robotn/gohook"
 )
 
 func (ar *ActionRegistry) OpenUrlInBrowser(querys []string) error {
@@ -17,7 +19,7 @@ func (ar *ActionRegistry) OpenUrlInBrowser(querys []string) error {
 	} else if len(querys) == 1 && strings.HasPrefix(querys[0], "http") {
 		fmt.Println("по стандарту ", querys[0])
 		query = querys[0]
-	}else if strings.HasPrefix(querys[0], "http"){
+	} else if strings.HasPrefix(querys[0], "http") {
 		query = strings.Join(querys, "")
 		query = strings.ReplaceAll(query, " ", "+")
 		fmt.Println("составной ", query)
@@ -56,4 +58,15 @@ func (ar *ActionRegistry) RebootPC(args []string) error {
 	cmdArgs := append([]string{"/C", "shutdown"}, args...)
 	cmd := exec.Command("cmd", cmdArgs...)
 	return cmd.Run()
+}
+
+func (ar *ActionRegistry) WaitForKeyPress() error {
+	fmt.Println("Ожидаю нажатия клавиши пробел...")
+
+	for {
+		if hook.AddEvent("space") {
+			fmt.Println("Клавиша пробел нажата!")
+			return nil
+		}
+	}
 }

@@ -29,3 +29,25 @@ func SendToActionService(jsonResp, url string) error {
 
 	return nil
 }
+
+func WaitForSpaceKeyPress() error {
+	fmt.Println("Ожидаю нажатия клавиши Space...")
+
+	req, err := http.NewRequest("GET", "http://127.0.0.1:8003/api/wait-for-a-key-press", nil)
+	if err != nil {
+		return err
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("action service error: %s", resp.Status)
+	}
+
+	return nil
+}

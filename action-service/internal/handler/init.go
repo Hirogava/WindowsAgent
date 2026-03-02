@@ -18,6 +18,24 @@ func InitHandlers(router *gin.Engine, ar service.ActionRegistry) {
 	router.POST("/api/play-audio", func(ctx *gin.Context) {
 		GetAudioAndPlay(ctx, ar)
 	})
+
+	router.GET("/api/wait-for-a-key-press", func(ctx *gin.Context) {
+		WaitForKeyPress(ctx, ar)
+	})
+}
+
+func WaitForKeyPress(ctx *gin.Context, ar service.ActionRegistry) {
+	err := ar.WaitForKeyPress()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "key_pressed",
+	})
 }
 
 func CommandExecute(ctx *gin.Context, ar service.ActionRegistry) {
@@ -47,7 +65,6 @@ func CommandExecute(ctx *gin.Context, ar service.ActionRegistry) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"status": "success",
 		})
-
 	case "reboot":
 		if err := ar.RebootPC(req.Args); err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
