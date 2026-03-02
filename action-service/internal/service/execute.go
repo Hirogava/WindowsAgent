@@ -76,6 +76,6 @@ func (ar *ActionRegistry) OpenApplication(args []string) error {
 		return ar.OpenUrlInBrowser([]string{"https://www.google.com"})
 	}
 
-	cmd := exec.Command("cmd", append([]string{"/C", "start"}, args...)...)
+	cmd := exec.Command("cmd", append([]string{"/C", "start", ""}, args...)...)
 	return cmd.Run()
 }
