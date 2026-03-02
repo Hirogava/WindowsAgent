@@ -74,6 +74,20 @@ func CommandExecute(ctx *gin.Context, ar service.ActionRegistry) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"status": "success",
 		})
+	case "start":
+		if len(req.Args) == 0 {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "нет аргументов для команды start"})
+			return
+		}
+
+		if err := ar.OpenApplication(req.Args); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"status": "success",
+		})
 	default:
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "пока неизвестная команда"})
 		return

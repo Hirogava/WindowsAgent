@@ -70,3 +70,12 @@ func (ar *ActionRegistry) WaitForKeyPress() error {
 		}
 	}
 }
+
+func (ar *ActionRegistry) OpenApplication(args []string) error {
+	if args[0] == "browser" {
+		return ar.OpenUrlInBrowser([]string{"https://www.google.com"})
+	}
+
+	cmd := exec.Command("cmd", append([]string{"/C", "start"}, args...)...)
+	return cmd.Run()
+}
