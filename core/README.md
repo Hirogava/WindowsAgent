@@ -7,14 +7,15 @@ Go-оркестратор голосового пайплайна (`jarvis`).
 `core/cmd/jarvis/main.go` выполняет последовательность:
 
 1. Получает список микрофонов через `ffmpeg` (`dshow`).
-2. Записывает 5 секунд аудио.
-3. Отправляет аудио в STT (`http://127.0.0.1:8001/api/transcribe`).
-4. Отправляет текст в Ollama:
+2. Ждет нажатия `Space` через `http://127.0.0.1:8003/api/wait-for-a-key-press`.
+3. Записывает 5 секунд аудио.
+4. Отправляет аудио в STT (`http://127.0.0.1:8001/api/transcribe`).
+5. Отправляет текст в Ollama:
    - запрос для озвучиваемого ответа;
    - запрос для JSON-команды выполнения.
-5. Отправляет текст в TTS (`http://127.0.0.1:8002/api/text-to-speech`),
+6. Отправляет текст в TTS (`http://127.0.0.1:8002/api/text-to-speech`),
    затем пересылает WAV в action-service (`/api/play-audio`).
-6. Отправляет JSON-команду в action-service (`/api/command-execute`).
+7. Отправляет JSON-команду в action-service (`/api/command-execute`).
 
 ## Запуск
 
@@ -38,7 +39,7 @@ go run main.go
 
 ```json
 {
-  "model": "gemma3:1b"
+  "model": "qwen2.5:1.5b"
 }
 ```
 

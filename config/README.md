@@ -6,7 +6,7 @@
 
 ```json
 {
-  "model": "gemma3:1b"
+  "model": "qwen2.5:1.5b"
 }
 ```
 

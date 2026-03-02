@@ -10,12 +10,13 @@
 - `action-service` (Go/Gin):
 	- `POST /api/command-execute` — выполнить действие (сейчас открытие URL/поиска в браузере);
 	- `POST /api/play-audio` — проиграть WAV, полученный от TTS.
+	- `GET /api/wait-for-a-key-press` — ожидание нажатия `Space`.
 - `core/internal/llm`: интеграция с Ollama (`config/ollama-config.json`).
 
 ## Текущий пайплайн
 
 1. `jarvis` получает список микрофонов через `ffmpeg -f dshow -list_devices true`.
-2. После выбора устройства записывает 5 секунд аудио и отправляет в STT (`:8001`).
+2. После выбора устройства ждёт нажатие `Space` через `action-service /api/wait-for-a-key-press`, затем записывает 5 секунд аудио и отправляет в STT (`:8001`).
 3. Текст отправляется в LLM дважды:
 	 - для голосового ответа (`PromptForTaskVoice`);
 	 - для JSON-команды выполнения (`PromptForTaskExecution`).
@@ -76,13 +77,14 @@ go run main.go
 - Action (`127.0.0.1:8003`)
 	- `POST /api/command-execute`
 	- `POST /api/play-audio` (`multipart/form-data`, поле `audio`)
+	- `GET /api/wait-for-a-key-press`
 
 ## Конфигурация
 
 - `config/ollama-config.json`
-	- `model`: имя модели Ollama (например, `gemma3:1b`).
+	- `model`: имя модели Ollama (текущее значение в репозитории: `qwen2.5:1.5b`).
 - `config/stt-config.json`
-	- `model`, `device`, `compute_type` для `faster-whisper`.
+	- `model`, `device`, `compute_type` для `faster-whisper` (текущие значения: `medium`, `cuda`, `float16`).
 - `config/tts-config.json`
 	- `model`: путь к `.onnx` файлу модели Piper (относительно `tts-service/src/app/services`).
 
