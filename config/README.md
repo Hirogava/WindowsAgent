@@ -2,6 +2,25 @@
 
 Файлы конфигурации для всех сервисов проекта.
 
+## microphone-config.json
+
+```json
+{
+  "device": "Микрофон (fifine Microphone)",
+  "duration_seconds": 5,
+  "trigger_key": "space"
+}
+```
+
+**Параметры:**
+- `device` — имя микрофона из списка `ffmpeg`.
+- `duration_seconds` — длительность записи в секундах для `jarvis` и тестовой записи из `frontend`.
+- `trigger_key` — клавиша, которую ждёт `action-service` перед стартом записи (`space`, `enter`, `a` и т.д.).
+
+**Как менять:**
+- Рекомендуется менять через `frontend` в меню `Настройки микрофона`.
+- Файл также можно редактировать вручную.
+
 ## ollama-config.json
 
 ```json

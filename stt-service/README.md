@@ -2,6 +2,15 @@
 
 Python/FastAPI сервис распознавания речи на базе `faster-whisper`.
 
+## Рекомендуемый запуск
+
+Обычно сервис запускается из frontend-кнопки `Запустить сервисы`:
+
+```powershell
+cd .\frontend\cmd\app
+go run main.go
+```
+
 ## Запуск
 
 ```powershell

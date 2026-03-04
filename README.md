@@ -47,6 +47,14 @@ go run main.go
 
 В приложении на главной странице можно запускать/останавливать сервисы, а в меню `Настройки микрофона` выбрать устройство, клавишу записи и сделать тестовую запись.
 
+## Документация модулей
+
+- `core/README.md`
+- `action-service/README.md`
+- `stt-service/README.md`
+- `tts-service/README.md`
+- `config/README.md`
+
 ### 1) STT service
 
 ```powershell
