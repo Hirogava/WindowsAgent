@@ -1,31 +1,45 @@
 package viewmodel
 
 import (
+	"github.com/Hirogava/WindowsAgent/frontend/internal/services"
+
 	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/widget"
 )
 
 type MainPageViewModel struct {
-	StartLabelText *widget.Label
-	TestDataLabel *widget.Label
-	TestDataEntry binding.String
-	SaveBtn func()
+	TitleLabel        *widget.Label
+	StatusLabel       *widget.Label
+	RecordStatusLabel *widget.Label
+	TestDataEntry     binding.String
+	StartServicesBtn  func()
+	StopServicesBtn   func()
+	RecordAudioBtn    func()
+
+	MainService *services.MainService
 }
 
-func NewMainPageViewModel() *MainPageViewModel {
+func NewMainPageViewModel(mainService *services.MainService) *MainPageViewModel {
 	return &MainPageViewModel{
-		StartLabelText: widget.NewLabel("Привет, мир!"),
-		TestDataLabel: widget.NewLabel("Введите текст:"),
-		TestDataEntry: binding.NewString(),
-		SaveBtn: func() {},
+		TitleLabel:        widget.NewLabel("Управление агентом"),
+		StatusLabel:       widget.NewLabel("Сервисы остановлены"),
+		RecordStatusLabel: widget.NewLabel(""),
+		TestDataEntry:     binding.NewString(),
+		StartServicesBtn:  func() {},
+		StopServicesBtn:   func() {},
+		RecordAudioBtn:    func() {},
+		MainService:       mainService,
 	}
 }
 
-func (vm *MainPageViewModel) SetSaveBtnAction(action func()) {
-	vm.SaveBtn = action
+func (vm *MainPageViewModel) SetStartServicesBtnAction(action func()) {
+	vm.StartServicesBtn = action
 }
 
-func (vm *MainPageViewModel) SaveNewLabelText() {
-	text, _ := vm.TestDataEntry.Get()
-	vm.StartLabelText.SetText(text)
+func (vm *MainPageViewModel) SetStopServicesBtnAction(action func()) {
+	vm.StopServicesBtn = action
+}
+
+func (vm *MainPageViewModel) SetRecordAudioBtnAction(action func()) {
+	vm.RecordAudioBtn = action
 }

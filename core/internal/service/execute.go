@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"net/url"
 )
 
 func SendToActionService(jsonResp, url string) error {
@@ -31,9 +32,18 @@ func SendToActionService(jsonResp, url string) error {
 }
 
 func WaitForSpaceKeyPress() error {
-	fmt.Println("Ожидаю нажатия клавиши Space...")
+	return WaitForKeyPress("space")
+}
 
-	req, err := http.NewRequest("GET", "http://127.0.0.1:8003/api/wait-for-a-key-press", nil)
+func WaitForKeyPress(key string) error {
+	if key == "" {
+		key = "space"
+	}
+
+	fmt.Printf("Ожидаю нажатия клавиши %s...\n", key)
+	uri := "http://127.0.0.1:8003/api/wait-for-a-key-press?key=" + url.QueryEscape(key)
+
+	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
 		return err
 	}

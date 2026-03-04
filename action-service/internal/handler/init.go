@@ -25,7 +25,8 @@ func InitHandlers(router *gin.Engine, ar service.ActionRegistry) {
 }
 
 func WaitForKeyPress(ctx *gin.Context, ar service.ActionRegistry) {
-	err := ar.WaitForKeyPress()
+	key := ctx.DefaultQuery("key", "space")
+	err := ar.WaitForKeyPressWithKey(key)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -35,6 +36,7 @@ func WaitForKeyPress(ctx *gin.Context, ar service.ActionRegistry) {
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"status": "key_pressed",
+		"key":    key,
 	})
 }
 

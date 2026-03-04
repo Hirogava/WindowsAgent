@@ -61,11 +61,20 @@ func (ar *ActionRegistry) RebootPC(args []string) error {
 }
 
 func (ar *ActionRegistry) WaitForKeyPress() error {
-	fmt.Println("Ожидаю нажатия клавиши пробел...")
+	return ar.WaitForKeyPressWithKey("space")
+}
+
+func (ar *ActionRegistry) WaitForKeyPressWithKey(key string) error {
+	if strings.TrimSpace(key) == "" {
+		key = "space"
+	}
+
+	key = strings.ToLower(strings.TrimSpace(key))
+	fmt.Printf("Ожидаю нажатия клавиши: %s...\n", key)
 
 	for {
-		if hook.AddEvent("space") {
-			fmt.Println("Клавиша пробел нажата!")
+		if hook.AddEvent(key) {
+			fmt.Printf("Клавиша %s нажата!\n", key)
 			return nil
 		}
 	}

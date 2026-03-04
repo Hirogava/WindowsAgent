@@ -1,8 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/Hirogava/WindowsAgent/core/internal/llm"
@@ -10,7 +14,15 @@ import (
 	"github.com/Hirogava/WindowsAgent/core/internal/service"
 )
 
+type microphoneConfig struct {
+	Device          string `json:"device"`
+	DurationSeconds int    `json:"duration_seconds"`
+	TriggerKey      string `json:"trigger_key"`
+}
+
 func main() {
+	setupLogger()
+
 	microfones, err := service.GetMicrophones()
 	if err != nil {
 		log.Fatal(err)
@@ -25,24 +37,49 @@ func main() {
 		fmt.Printf("%d: %s\n", i+1, mic)
 	}
 
-	fmt.Println("Выберите микрофон для записи (введите номер):")
-	var choice int
-	_, err = fmt.Scanln(&choice)
-
-	if err != nil || choice < 1 || choice > len(microfones) {
-		log.Fatal("Неверный выбор микрофона")
+	var mic string
+	cfg, err := loadMicrophoneFromConfig()
+	if err != nil || cfg.Device == "" {
+		mic = microfones[0]
+		fmt.Printf("Микрофон из конфига не найден, используется: %s\n", mic)
+	} else {
+		mic = cfg.Device
+		fmt.Printf("Выбран микрофон из конфига: %s\n", mic)
 	}
 
-	mic := microfones[choice-1]
-	fmt.Println("Нажми Space для записи 5 секунд...")
+	triggerKey := "space"
+	recordDuration := 5
+	if err == nil {
+		if cfg.TriggerKey != "" {
+			triggerKey = cfg.TriggerKey
+		}
+		if cfg.DurationSeconds > 0 {
+			recordDuration = cfg.DurationSeconds
+		}
+	}
+
+	fmt.Printf("Нажми %s для записи %d секунд...\n", triggerKey, recordDuration)
 
 	for {
-		err = service.WaitForSpaceKeyPress()
+		updatedCfg, readErr := loadMicrophoneFromConfig()
+		if readErr == nil {
+			if updatedCfg.Device != "" {
+				mic = updatedCfg.Device
+			}
+			if updatedCfg.TriggerKey != "" {
+				triggerKey = updatedCfg.TriggerKey
+			}
+			if updatedCfg.DurationSeconds > 0 {
+				recordDuration = updatedCfg.DurationSeconds
+			}
+		}
+
+		err = service.WaitForKeyPress(triggerKey)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		resp, err := service.RecordAndSend(mic, 5, "http://127.0.0.1:8001/api/transcribe")
+		resp, err := service.RecordAndSend(mic, recordDuration, "http://127.0.0.1:8001/api/transcribe")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -54,7 +91,7 @@ func main() {
 
 		var wg sync.WaitGroup
 		wg.Add(1)
-		go func () {
+		go func() {
 			err = service.SendTextToAudio(responseVoice, "http://127.0.0.1:8002/api/text-to-speech", "http://127.0.0.1:8003/api/play-audio")
 			if err != nil {
 				log.Fatal(err)
@@ -76,4 +113,101 @@ func main() {
 		fmt.Println("Транскрибированный текст:", resp.Transcription)
 		wg.Wait()
 	}
+}
+
+func setupLogger() {
+	rootDir, err := repoRootDir()
+	if err != nil {
+		log.Printf("logger init warning: %v", err)
+		return
+	}
+
+	logsDir := filepath.Join(rootDir, "logs")
+	if err = os.MkdirAll(logsDir, 0755); err != nil {
+		log.Printf("logger init warning: %v", err)
+		return
+	}
+
+	logFile := filepath.Join(logsDir, "jarvis.log")
+	file, err := os.OpenFile(logFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Printf("logger init warning: %v", err)
+		return
+	}
+
+	log.SetOutput(io.MultiWriter(os.Stdout, file))
+	log.Printf("logging initialized: %s", logFile)
+}
+
+func repoRootDir() (string, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	current := cwd
+	for {
+		candidate := filepath.Join(current, "config")
+		if info, statErr := os.Stat(candidate); statErr == nil && info.IsDir() {
+			return current, nil
+		}
+
+		parent := filepath.Dir(current)
+		if parent == current {
+			break
+		}
+		current = parent
+	}
+
+	return "", fmt.Errorf("repo root not found from cwd: %s", cwd)
+}
+
+func loadMicrophoneFromConfig() (*microphoneConfig, error) {
+	configPath, err := microphoneConfigPath()
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	cfg := &microphoneConfig{DurationSeconds: 5, TriggerKey: "space"}
+	if err = json.Unmarshal(data, cfg); err != nil {
+		return nil, err
+	}
+
+	if cfg.DurationSeconds <= 0 {
+		cfg.DurationSeconds = 5
+	}
+
+	if cfg.TriggerKey == "" {
+		cfg.TriggerKey = "space"
+	}
+
+	return cfg, nil
+}
+
+func microphoneConfigPath() (string, error) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	current := cwd
+	for {
+		candidate := filepath.Join(current, "config", "microphone-config.json")
+		if _, statErr := os.Stat(candidate); statErr == nil {
+			return candidate, nil
+		}
+
+		parent := filepath.Dir(current)
+		if parent == current {
+			break
+		}
+		current = parent
+	}
+
+	return "", fmt.Errorf("microphone config not found from cwd: %s", cwd)
 }

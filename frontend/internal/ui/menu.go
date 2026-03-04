@@ -11,6 +11,7 @@ func NewMainMenu(menuM *viewmodel.MenuViewModel) *fyne.MainMenu {
 		fyne.NewMenu("Меню",
 			fyne.NewMenuItem("Главная страница", menuM.MainPageBtn),
 			fyne.NewMenuItem("Настройки конфигов", menuM.ConfigPageBtn),
+			fyne.NewMenuItem("Настройки микрофона", menuM.MicrophonePageBtn),
 		),
 	)
 }
@@ -23,6 +24,12 @@ func NewMainPageBtn(menuM *viewmodel.MenuViewModel, container *fyne.Container) {
 
 func NewConfigPageBtn(menuM *viewmodel.MenuViewModel, container *fyne.Container) {
 	menuM.SetConfigPageBtnAction(func() {
+		menuM.MainWindow.SetContent(container)
+	})
+}
+
+func NewMicrophonePageBtn(menuM *viewmodel.MenuViewModel, container *fyne.Container) {
+	menuM.SetMicrophonePageBtnAction(func() {
 		menuM.MainWindow.SetContent(container)
 	})
 }

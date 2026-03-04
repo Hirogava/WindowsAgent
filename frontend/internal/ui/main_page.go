@@ -10,13 +10,49 @@ import (
 )
 
 func NewMainPageContainer(page *viewmodel.MainPageViewModel, w fyne.Window) *fyne.Container {
+	page.SetStartServicesBtnAction(func() {
+		err := page.MainService.StartAllServices()
+		if err != nil {
+			dialog.ShowError(err, w)
+			return
+		}
+
+		page.StatusLabel.SetText("Сервисы запущены")
+	})
+
+	page.SetStopServicesBtnAction(func() {
+		err := page.MainService.StopAllServices()
+		if err != nil {
+			dialog.ShowError(err, w)
+			return
+		}
+
+		page.StatusLabel.SetText("Сервисы остановлены")
+	})
+
+	page.SetRecordAudioBtnAction(func() {
+		path, err := page.MainService.RecordAudioSample(5)
+		if err != nil {
+			dialog.ShowError(err, w)
+			return
+		}
+
+		page.RecordStatusLabel.SetText("Аудио записано: " + path)
+		dialog.ShowInformation("OK", "Запись завершена", w)
+	})
+
 	return container.NewVBox(
-		page.StartLabelText,
-		page.TestDataLabel,
-		widget.NewEntryWithData(page.TestDataEntry),
-		widget.NewButton("Сохранить", func() {
-			page.SaveNewLabelText()
-			dialog.ShowInformation("Info", "Имя введено", w)
+		page.TitleLabel,
+		page.StatusLabel,
+		widget.NewButton("Запустить сервисы", func() {
+			page.StartServicesBtn()
 		}),
+		widget.NewButton("Остановить сервисы", func() {
+			page.StopServicesBtn()
+		}),
+		widget.NewButton("Записать аудио", func() {
+			page.RecordAudioBtn()
+		}),
+		page.RecordStatusLabel,
 	)
 }
