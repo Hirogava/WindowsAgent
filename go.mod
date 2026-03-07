@@ -1,6 +1,6 @@
 module github.com/Hirogava/WindowsAgent
 
-go 1.25.0
+go 1.26.1
 
 require github.com/gin-contrib/cors v1.7.6
 
